@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 });
 
 // Example API endpoint to get transactions
-app.get("/api/transactions", (req, res) => {
+app.get("/transactions", (req, res) => {
   db.all("SELECT * FROM transactions", [], (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
