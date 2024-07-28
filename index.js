@@ -39,18 +39,45 @@ app.get("/transactions", (req, res) => {
 
 // Example API endpoint to add a transaction
 app.post("/api/transactions", (req, res) => {
-  const { date, description, amount, type, runningBalance } = req.body;
-  db.run(
-    "INSERT INTO transactions (date, description, amount, type, runningBalance) VALUES (?, ?, ?, ?, ?)",
-    [date, description, amount, type, runningBalance],
-    function (err) {
+  const { date, description, amount, type } = req.body;
+
+  // Get the last transaction to calculate runningBalance
+  db.get(
+    "SELECT runningBalance FROM transactions ORDER BY date DESC LIMIT 1",
+    [],
+    (err, row) => {
       if (err) {
         res.status(500).json({ error: err.message });
         return;
       }
-      res.json({
-        id: this.lastID,
-      });
+
+      let runningBalance = row ? row.runningBalance : 0;
+
+      if (type.toLowerCase() === "credit") {
+        runningBalance += amount;
+      } else {
+        runningBalance -= amount;
+      }
+
+      // Insert the new transaction
+      db.run(
+        `INSERT INTO transactions (date, description, amount, type, runningBalance) VALUES (?, ?, ?, ?, ?)`,
+        [date, description, amount, type, runningBalance],
+        function (err) {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          res.json({
+            id: this.lastID,
+            date,
+            description,
+            amount,
+            type,
+            runningBalance,
+          });
+        }
+      );
     }
   );
 });

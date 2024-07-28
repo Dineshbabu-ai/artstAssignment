@@ -3,3 +3,12 @@ GET http://localhost:3000/transactions
 ###
 
 POST http://localhost:3000/api/transactions
+Content-Type: application/json
+
+{
+  "date": "2024-07-28",
+  "description": "Test transaction",
+  "amount": 300,
+  "type": "debit",
+  "runningBalance": 1000.0
+}
